@@ -8,9 +8,9 @@ import ayurvedaHero from "@/assets/ayurveda-hero.jpg";
 const Dashboard = () => {
   const navigate = useNavigate();
   const stats = [
-    { title: "Active Patients", value: "247", icon: Users, trend: "+12%" },
-    { title: "Diet Charts Created", value: "89", icon: FileText, trend: "+5%" },
-    { title: "Food Database Items", value: "8,247", icon: Database, trend: "Updated" },
+    { title: "Active Patients", value: "26", icon: Users, trend: "+12%" },
+    { title: "Diet Charts Created", value: "30", icon: FileText, trend: "+5%" },
+    { title: "Food Database Items", value: "3,042", icon: Database, trend: "Updated" },
     { title: "Ayurvedic Compliance", value: "94%", icon: Leaf, trend: "+2%" },
   ];
 
@@ -43,7 +43,7 @@ const Dashboard = () => {
                 <Leaf className="h-8 w-8 text-primary" />
                 <div>
                   <h1 className="text-2xl font-bold bg-gradient-ayurvedic bg-clip-text text-transparent">
-                    AyurNutri Pro
+                    Veda Verse
                   </h1>
                   <p className="text-sm text-muted-foreground">Holistic Diet Management System</p>
                 </div>
