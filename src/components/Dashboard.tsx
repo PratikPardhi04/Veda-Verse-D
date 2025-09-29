@@ -187,7 +187,7 @@ const Dashboard = () => {
                   <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-3">
                     <Database className="h-8 w-8" />
                   </div>
-                  <h4 className="font-semibold mb-2">8000+ Food Items</h4>
+                  <h4 className="font-semibold mb-2">3,042+ Food Items</h4>
                   <p className="text-sm opacity-90">Complete nutritional + Ayurvedic properties</p>
                 </div>
                 <div className="text-center">
