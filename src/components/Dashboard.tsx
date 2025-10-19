@@ -54,7 +54,7 @@ const Dashboard = () => {
                 <Heart className="h-3 w-3 mr-1" />
                 Ayurveda Certified
               </Badge>
-              <Button variant="outline">Dr. Arvind Mehta</Button>
+              <Button variant="outline">Dr. Aditya Patil</Button>
             </div>
           </div>
         </div>
@@ -63,7 +63,7 @@ const Dashboard = () => {
       <div className="container mx-auto px-6 py-8">
         {/* Welcome Section */}
         <div className="mb-8">
-          <h2 className="text-3xl font-bold mb-2">Welcome back, Dr. Mehta</h2>
+          <h2 className="text-3xl font-bold mb-2">Welcome back, Dr. Aditya Patil</h2>
           <p className="text-muted-foreground">
             Transform patient care with AI-powered Ayurvedic nutrition analysis
           </p>

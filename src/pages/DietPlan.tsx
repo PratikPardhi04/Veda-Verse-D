@@ -31,7 +31,7 @@ const DietPlan = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const patient = location.state?.patient;
-  const doctorName = location.state?.doctorName || "Dr. Anjali Mehra";
+  const doctorName = location.state?.doctorName || "Dr. Aditya Patil";
   const [dietPlan, setDietPlan] = useState<string>("");
   const [dietTable, setDietTable] = useState<any>(null);
   const [loading, setLoading] = useState(false);
@@ -61,14 +61,14 @@ const DietPlan = () => {
       setDietTable(null);
 
       try {
-        const prompt = `
+  const prompt = `
 You are an expert Ayurvedic nutritionist. Create a weekly Ayurvedic diet plan.
 
 **Important:**
-Return ONLY a markdown table with the following exact columns:
-| Day | Breakfast | Lunch | Dinner | Snacks |
+Return ONLY a markdown table with the following exact columns (in this order):
+| Day | Breakfast | Lunch | Dinner | Snacks | Calories |
 
-Do not include explanations or text outside the table.
+Calories should be approximate total daily kilocalories (e.g. 1800 kcal). Do not include explanations or extra text outside the table.
 
 Patient Data:
 Name: ${patient.name}
@@ -191,7 +191,12 @@ Doctor: ${doctorName}
                 <tr className="bg-primary text-primary-foreground uppercase text-sm print:bg-gray-200 print:text-black">
                   <th className="px-4 py-3 text-left rounded-tl-xl">Day</th>
                   {Object.keys(dietTable[Object.keys(dietTable)[0]]).map((meal) => (
-                    <th key={meal} className="px-4 py-3 text-left">{meal}</th>
+                    <th
+                      key={meal}
+                      className={`px-4 py-3 ${meal.toLowerCase().includes('calor') ? 'text-right' : 'text-left'}`}
+                    >
+                      {meal}
+                    </th>
                   ))}
                 </tr>
               </thead>
@@ -206,8 +211,11 @@ Doctor: ${doctorName}
                     }
                   >
                     <td className="px-4 py-3 font-semibold text-primary">{day}</td>
-                    {Object.values(meals).map((item, idx) => (
-                      <td key={idx} className="px-4 py-3 border-t border-border text-sm">
+                    {Object.entries(meals).map(([mealName, item], idx) => (
+                      <td
+                        key={idx}
+                        className={`px-4 py-3 border-t border-border text-sm ${mealName.toLowerCase().includes('calor') ? 'text-right font-semibold' : ''}`}
+                      >
                         {String(item)}
                       </td>
                     ))}

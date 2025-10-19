@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,10 +11,7 @@ import { useNavigate } from "react-router-dom";
 
 const PatientManagement = () => {
   const navigate = useNavigate();
-  // Gemini API key
-  const GEMINI_API_KEY = "AIzaSyByN5LDr6NbjiyI6F5ab_5SxSvnuvm2VcU";
-
-  // Function to call Gemini Flash 1.5 API
+  // Function to navigate to Diet Plan page for a patient
   function handleGenerateDietChart(patient: any) {
     navigate("/diet-plan", { state: { patient } });
   }
@@ -67,22 +64,38 @@ const PatientManagement = () => {
     const stored = localStorage.getItem('patients');
     if (stored) {
       try {
-        return JSON.parse(stored);
-      } catch {
-        // fallback to demo patients if corrupted
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) {
+          return parsed.map((p: any) => {
+            const patient = { ...p };
+            if (patient && patient.name === 'Priya Sharma') patient.name = 'Diya Joshi';
+            if (patient && patient.name === 'Rajesh Kumar') patient.name = 'Arjun Patel';
+            if (patient && patient.name === 'Ananya Deshmukh') patient.name = 'Arya Deshmukh';
+            if (!patient.agni) patient.agni = pick(agniOptions);
+            if (!patient.nidra) patient.nidra = pick(nidraOptions);
+            if (!patient.aharaRuchi) patient.aharaRuchi = pick(aharaRuchiOptions);
+            if (!patient.pravritti) patient.pravritti = pick(pravrittiOptions);
+            if (patient.notes === undefined || patient.notes === null) patient.notes = pick(notesOptions);
+            return patient;
+          });
+        }
+        return parsed;
+      } catch (e) {
+        console.warn('Failed to parse stored patients, using demo data.', e);
       }
     }
+
     return [
       {
         id: 1,
-        name: "Priya Sharma",
+        name: 'Diya Joshi',
         age: 34,
-        gender: "Female",
-        constitution: "Vata-Pitta",
+        gender: 'Female',
+        constitution: 'Vata-Pitta',
         bmi: 22.5,
-        lastVisit: "2024-01-15",
-        condition: "Digestive Issues",
-        dietPreference: "Vegetarian",
+        lastVisit: '2024-01-15',
+        condition: 'Digestive Issues',
+        dietPreference: 'Vegetarian',
         agni: pick(agniOptions),
         nidra: pick(nidraOptions),
         aharaRuchi: pick(aharaRuchiOptions),
@@ -91,30 +104,30 @@ const PatientManagement = () => {
       },
       {
         id: 2,
-        name: "Rajesh Kumar",
+        name: 'Arjun Patel',
         age: 45,
-        gender: "Male",
-        constitution: "Kapha",
+        gender: 'Male',
+        constitution: 'Kapha',
         bmi: 27.2,
-        lastVisit: "2024-01-14",
-        condition: "Weight Management",
-        dietPreference: "Non-Vegetarian",
+        lastVisit: '2024-01-14',
+        condition: 'Weight Management',
+        dietPreference: 'Non-Vegetarian',
         agni: pick(agniOptions),
         nidra: pick(nidraOptions),
-        aharaRuchi: pick(aharaRuchiOptions),
+        aharaRuchi: pick(aharaRuchiOptions),   
         pravritti: pick(pravrittiOptions),
         notes: pick(notesOptions)
       },
       {
         id: 3,
-        name: "Anita Patel",
+        name: 'Arya Deshmukh',
         age: 28,
-        gender: "Female",
-        constitution: "Pitta",
+        gender: 'Female',
+        constitution: 'Pitta',
         bmi: 21.8,
-        lastVisit: "2024-01-13",
-        condition: "Skin Issues",
-        dietPreference: "Vegan",
+        lastVisit: '2024-01-13',
+        condition: 'Skin Issues',
+        dietPreference: 'Vegan',
         agni: pick(agniOptions),
         nidra: pick(nidraOptions),
         aharaRuchi: pick(aharaRuchiOptions),
@@ -130,6 +143,19 @@ const PatientManagement = () => {
   useEffect(() => {
     localStorage.setItem('patients', JSON.stringify(patients));
   }, [patients]);
+
+  // Search / filter state
+  const [query, setQuery] = useState('');
+  const [filter, setFilter] = useState('all');
+
+  const filteredPatients = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return patients.filter((p: any) => {
+      if (filter !== 'all' && !p.constitution.toLowerCase().includes(filter)) return false;
+      if (!q) return true;
+      return p.name.toLowerCase().includes(q) || (p.condition || '').toLowerCase().includes(q);
+    });
+  }, [patients, query, filter]);
 
   // Form state for new patient
   const [form, setForm] = useState({
@@ -432,13 +458,13 @@ const PatientManagement = () => {
       <Card className="shadow-soft">
         <CardContent className="p-4">
           <div className="flex items-center space-x-4">
-            <div className="relative flex-1">
+              <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input placeholder="Search patients..." className="pl-10" />
+              <Input placeholder="Search patients..." className="pl-10" value={query} onChange={e => setQuery(e.target.value)} />
             </div>
-            <Select>
+            <Select value={filter} onValueChange={(val) => setFilter(val)}>
               <SelectTrigger className="w-48">
-                <SelectValue placeholder="Filter by constitution" />
+                <SelectValue>{filter === 'all' ? 'All Constitutions' : filter.charAt(0).toUpperCase() + filter.slice(1)}</SelectValue>
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Constitutions</SelectItem>
@@ -455,7 +481,7 @@ const PatientManagement = () => {
       <div className="mb-8">
         <h3 className="text-xl font-bold mb-2">Recent Patients</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {patients.slice(0, 3).map((patient) => {
+          {filteredPatients.slice(0, 3).map((patient) => {
             const bmiInfo = getBMIStatus(patient.bmi);
             return (
               <Card key={patient.id} className="shadow-soft border border-primary/30">
@@ -483,7 +509,7 @@ const PatientManagement = () => {
 
       {/* Patients Grid */}
       <div className="grid gap-6">
-        {patients.map((patient) => {
+        {filteredPatients.map((patient) => {
           const bmiInfo = getBMIStatus(patient.bmi);
           return (
             <Card key={patient.id} className="shadow-soft hover:shadow-strong transition-all duration-300">
